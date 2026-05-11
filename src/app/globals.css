@@ -5,6 +5,21 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-paper: var(--paper);
+  --color-paper-warm: var(--paper-warm);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-mute: var(--ink-mute);
+  --color-moss: var(--accent-moss);
+  --color-moss-soft: var(--accent-moss-soft);
+  --color-rose: var(--rose);
+  --color-rose-soft: var(--rose-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --font-serif: var(--font-serif);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -49,38 +64,53 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Ledger & Co. Theme */
+  --paper: #f5f1e8;
+  --paper-warm: #ebe5d6;
+  --card: #fdfbf6;
+
+  --ink: #1a1814;
+  --ink-soft: #4a4740;
+  --ink-mute: #8a857c;
+
+  --accent-moss: #2d5a3d;
+  --accent-moss-soft: #e8f0ea;
+  --rose: #a63d40;
+  --rose-soft: #f5e4e4;
+  --gold: #b8832a;
+  --gold-soft: #f5ecd4;
+
+  --line: #d9d3c2;
+  --line-soft: #e8e2d1;
+
+  /* Map standard Shadcn to Ledger & Co */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  
+  --muted: var(--paper-warm);
+  --muted-foreground: var(--ink-mute);
+
+  --popover: var(--card);
+  --popover-foreground: var(--ink);
+
+  --border: var(--line);
+  --input: var(--line);
+
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+
+  --secondary: var(--paper-warm);
+  --secondary-foreground: var(--ink-soft);
+
+  --accent: var(--paper-warm);
+  --accent-foreground: var(--ink);
+
+  --destructive: var(--rose);
+  --destructive-foreground: var(--rose-soft);
+
+  --ring: var(--ink);
+
+  --radius: 2px;
 }
 
 .dark {

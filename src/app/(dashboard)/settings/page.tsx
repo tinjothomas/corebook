@@ -5,7 +5,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/contexts/AuthContext";
-import { getDocument, setDocument, BusinessProfile } from "@/lib/firebase/db";
+import {
+  getDocument,
+  setDocument,
+  getUserDocuments,
+  addDocument,
+  deleteDocument,
+  BusinessProfile,
+  TransactionCategory,
+} from "@/lib/firebase/db";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -41,6 +49,9 @@ const CURRENCIES = ["INR", "USD", "EUR", "GBP", "AUD", "CAD", "SGD", "AED"];
 export default function SettingsPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<TransactionCategory[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -68,15 +79,54 @@ export default function SettingsPage() {
             baseCurrency: profile.baseCurrency,
           });
         }
+
+        const userCategories = await getUserDocuments<TransactionCategory>(
+          "transactionCategories",
+          user.uid,
+        );
+        setCategories(userCategories);
       } catch (error) {
-        console.error("Failed to load profile:", error);
-        toast.error("Failed to load business profile");
+        console.error("Failed to load data:", error);
+        toast.error("Failed to load business profile or categories");
       } finally {
         setLoading(false);
       }
     }
     loadProfile();
   }, [user, form]);
+
+  async function handleAddCategory() {
+    if (!user || !newCategoryName.trim()) return;
+    try {
+      setIsAddingCategory(true);
+      const newCategory = {
+        userId: user.uid,
+        name: newCategoryName.trim(),
+      };
+      const id = await addDocument<TransactionCategory>(
+        "transactionCategories",
+        newCategory,
+      );
+      setCategories([...categories, { ...newCategory, id }]);
+      setNewCategoryName("");
+      toast.success("Category added successfully");
+    } catch (error) {
+      toast.error("Failed to add category");
+    } finally {
+      setIsAddingCategory(false);
+    }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    if (!confirm("Delete this category?")) return;
+    try {
+      await deleteDocument("transactionCategories", id);
+      setCategories(categories.filter((c) => c.id !== id));
+      toast.success("Category deleted");
+    } catch (error) {
+      toast.error("Failed to delete category");
+    }
+  }
 
   async function onSubmit(data: FormValues) {
     if (!user) return;
@@ -191,6 +241,52 @@ export default function SettingsPage() {
           <Button type="submit">Save Changes</Button>
         </form>
       </Form>
+
+      <div className="pt-10 border-t mt-10">
+        <h3 className="text-lg font-medium">Transaction Categories</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          Manage custom categories for your transactions.
+        </p>
+
+        <div className="flex gap-4 mb-6 max-w-sm">
+          <Input
+            placeholder="New Category Name"
+            value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddCategory();
+              }
+            }}
+          />
+          <Button
+            onClick={handleAddCategory}
+            disabled={!newCategoryName.trim() || isAddingCategory}>
+            Add
+          </Button>
+        </div>
+
+        <div className="space-y-2 max-w-sm">
+          {categories.map((cat) => (
+            <div
+              key={cat.id}
+              className="flex items-center justify-between p-3 border rounded-md">
+              <span className="text-sm font-medium">{cat.name}</span>
+              <button
+                onClick={() => cat.id && handleDeleteCategory(cat.id)}
+                className="text-xs text-rose hover:underline">
+                Delete
+              </button>
+            </div>
+          ))}
+          {categories.length === 0 && (
+            <div className="text-sm text-muted-foreground italic">
+              No categories created yet.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
