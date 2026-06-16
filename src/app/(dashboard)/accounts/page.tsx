@@ -18,6 +18,8 @@ import {
 } from "@/lib/firebase/db";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import Link from "next/link";
+
 
 const accountSchema = z.object({
   name: z.string().min(2, "Name required"),
@@ -295,7 +297,7 @@ export default function AccountsPage() {
             </div>
           ) : (
             <div className="flex flex-col">
-              {transactions.map((tx, idx) => {
+              {transactions.slice(0, 10).map((tx, idx) => {
                 const date = new Date(tx.date);
                 const month = format(date, "MMM");
                 const day = format(date, "dd");
@@ -377,6 +379,15 @@ export default function AccountsPage() {
                   </div>
                 );
               })}
+              {transactions.length > 10 && (
+                <div className="mt-6 text-right">
+                  <Link
+                    href="/transactions"
+                    className="text-[11px] uppercase tracking-[0.16em] text-ink-soft border-b-[0.5px] border-ink-mute pb-[2px] hover:text-ink hover:border-ink transition-colors">
+                    View All Transactions ({transactions.length}) →
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </div>

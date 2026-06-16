@@ -17,6 +17,7 @@ export default function DashboardLayout({
 
   const navigation = [
     { name: "Accounts", href: "/accounts" },
+    { name: "Transactions", href: "/transactions" },
     { name: "Invoices", href: "/invoices" },
     { name: "Customers", href: "/customers" },
     { name: "Settings", href: "/settings" },
