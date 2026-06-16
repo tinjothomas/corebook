@@ -26,21 +26,21 @@ export default function DashboardLayout({
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-paper text-ink pb-24">
-        <div className="max-w-[1200px] mx-auto px-8">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
           {/* Masthead */}
-          <header className="grid grid-cols-3 items-end pt-12 pb-6 border-b border-ink">
-            <div className="text-[11px] uppercase tracking-[0.16em] text-ink-mute pb-1">
+          <header className="flex flex-col md:grid md:grid-cols-3 items-center md:items-end gap-4 md:gap-0 pt-8 md:pt-12 pb-6 border-b border-ink">
+            <div className="hidden md:block text-[11px] uppercase tracking-[0.16em] text-ink-mute pb-1">
               № 04 · Vol. MMXXVI
             </div>
             <div className="text-center">
-              <h1 className="font-serif text-[72px] leading-[0.95] tracking-[-0.02em] font-normal">
+              <h1 className="font-serif text-[36px] sm:text-[72px] leading-[0.95] tracking-[-0.02em] font-normal">
                 Ledger <span className="italic text-moss">&</span> Co.
               </h1>
-              <div className="italic font-serif text-[18px] text-ink-soft mt-1">
+              <div className="italic font-serif text-[14px] sm:text-[18px] text-ink-soft mt-1">
                 CoreBook — accounting dashboard
               </div>
             </div>
-            <div className="text-[11px] uppercase tracking-[0.16em] text-ink-mute pb-1 text-right flex items-center justify-end gap-6">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-ink-mute pb-1 text-center md:text-right flex flex-col md:flex-row items-center justify-end gap-2 md:gap-6 w-full md:w-auto">
               <span>
                 {new Date().toLocaleDateString("en-GB", {
                   weekday: "long",
@@ -51,14 +51,14 @@ export default function DashboardLayout({
               </span>
               <button
                 onClick={signOut}
-                className="text-ink hover:text-rose transition-colors">
+                className="text-ink hover:text-rose transition-colors font-medium tracking-[0.16em]">
                 SIGN OUT
               </button>
             </div>
           </header>
 
           {/* Sub-nav */}
-          <nav className="flex items-center gap-6 py-4 border-b border-line mb-12">
+          <nav className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6 py-4 border-b border-line mb-8 md:mb-12">
             {navigation.map((item) => {
               const isActive =
                 pathname === item.href || pathname.startsWith(item.href + "/");

@@ -19,6 +19,8 @@ import {
 import { toast } from "sonner";
 import { format } from "date-fns";
 import Link from "next/link";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+
 
 
 const accountSchema = z.object({
@@ -47,6 +49,8 @@ export default function AccountsPage() {
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [isAddingAccount, setIsAddingAccount] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
 
   const txForm = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema) as Resolver<
@@ -133,6 +137,7 @@ export default function AccountsPage() {
       }
       txForm.reset();
       setEditingTx(null);
+      setIsAddDialogOpen(false);
       fetchData();
     } catch (error) {
       toast.error("Failed to save transaction");
@@ -149,8 +154,11 @@ export default function AccountsPage() {
       type: tx.type,
       categoryId: tx.categoryId || "none",
     });
-    // Scroll to top to see the form
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (window.innerWidth < 1024) {
+      setIsAddDialogOpen(true);
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   function handleCancelEditTx() {
@@ -163,7 +171,24 @@ export default function AccountsPage() {
       type: "expense",
       categoryId: "none",
     });
+    setIsAddDialogOpen(false);
   }
+
+  function handleCloseDialog(open: boolean) {
+    setIsAddDialogOpen(open);
+    if (!open) {
+      setEditingTx(null);
+      txForm.reset({
+        accountId: "",
+        amount: 0,
+        date: format(new Date(), "yyyy-MM-dd"),
+        description: "",
+        type: "expense",
+        categoryId: "none",
+      });
+    }
+  }
+
 
   async function onAccountSubmit(data: z.infer<typeof accountSchema>) {
     if (!user) return;
@@ -231,7 +256,7 @@ export default function AccountsPage() {
   }
 
   return (
-    <div className="grid grid-cols-[1.6fr_1fr] gap-[28px]">
+    <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-6 lg:gap-[28px]">
       {/* Left Column: Main Content */}
       <div>
         {/* Hero Figure */}
@@ -239,8 +264,8 @@ export default function AccountsPage() {
           <div className="text-[11px] uppercase tracking-[0.14em] text-ink-mute mb-2.5">
             Total Balance
           </div>
-          <div className="font-serif text-[60px] leading-none tracking-[-0.025em] tabular-nums">
-            <span className="text-[36px] text-ink-mute mr-1">
+          <div className="font-serif text-[40px] sm:text-[60px] leading-none tracking-[-0.025em] tabular-nums">
+            <span className="text-[24px] sm:text-[36px] text-ink-mute mr-1">
               {currencySymbol}
             </span>
             {totalBalance.toFixed(2)}
@@ -253,36 +278,36 @@ export default function AccountsPage() {
 
         {/* KPI Trio */}
         <div className="grid grid-cols-3 border-[0.5px] border-line bg-card mb-7 divide-x-[0.5px] divide-line">
-          <div className="p-[18px]">
+          <div className="p-3 sm:p-[18px]">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-[5px] h-[5px] bg-moss rounded-full"></div>
-              <div className="text-[11px] uppercase tracking-[0.14em] text-ink-mute">
+              <div className="text-[9px] sm:text-[11px] uppercase tracking-[0.14em] text-ink-mute">
                 Income
               </div>
             </div>
-            <div className="font-serif text-[26px] tabular-nums">
+            <div className="font-serif text-[18px] sm:text-[26px] tabular-nums">
               {totalIncome.toFixed(2)}
             </div>
           </div>
-          <div className="p-[18px]">
+          <div className="p-3 sm:p-[18px]">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-[5px] h-[5px] bg-rose rounded-full"></div>
-              <div className="text-[11px] uppercase tracking-[0.14em] text-ink-mute">
+              <div className="text-[9px] sm:text-[11px] uppercase tracking-[0.14em] text-ink-mute">
                 Expense
               </div>
             </div>
-            <div className="font-serif text-[26px] tabular-nums">
+            <div className="font-serif text-[18px] sm:text-[26px] tabular-nums">
               {totalExpense.toFixed(2)}
             </div>
           </div>
-          <div className="p-[18px]">
+          <div className="p-3 sm:p-[18px]">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-[5px] h-[5px] bg-gold rounded-full"></div>
-              <div className="text-[11px] uppercase tracking-[0.14em] text-ink-mute">
+              <div className="text-[9px] sm:text-[11px] uppercase tracking-[0.14em] text-ink-mute">
                 Net Margin
               </div>
             </div>
-            <div className="font-serif text-[26px] tabular-nums">
+            <div className="font-serif text-[18px] sm:text-[26px] tabular-nums">
               {net.toFixed(2)}
             </div>
           </div>
@@ -334,9 +359,9 @@ export default function AccountsPage() {
                       className={`font-serif text-[18px] tabular-nums flex items-center ${isIncome ? "text-moss" : "text-ink"}`}>
                       {isIncome ? "+" : "−"} {Math.abs(tx.amount).toFixed(2)}
                     </div>
-                    <div className="flex items-center justify-end w-32 gap-2">
+                    <div className="flex items-center justify-end gap-1 sm:gap-2">
                       <div
-                        className={`px-2 py-[3px] text-[10px] uppercase tracking-[0.1em] border-[0.5px] rounded-[1px] ${isIncome ? "border-moss bg-moss-soft text-moss" : "border-ink bg-paper text-ink"}`}>
+                        className={`hidden sm:block px-2 py-[3px] text-[10px] uppercase tracking-[0.1em] border-[0.5px] rounded-[1px] ${isIncome ? "border-moss bg-moss-soft text-moss" : "border-ink bg-paper text-ink"}`}>
                         {isIncome ? "INCOME" : "EXPENSE"}
                       </div>
                       <button
@@ -396,7 +421,7 @@ export default function AccountsPage() {
       {/* Right Column: Sidebar */}
       <div>
         {/* Dark Invitation - Quick Add */}
-        <div className="bg-ink text-paper p-[22px] relative mb-7">
+        <div className="bg-ink text-paper p-[22px] relative mb-7 hidden lg:block">
           <div className="absolute top-[22px] right-[22px] w-[26px] h-[26px] border-[0.5px] border-paper/25 rounded-full flex items-center justify-center text-[18px] font-light">
             +
           </div>
@@ -605,6 +630,141 @@ export default function AccountsPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Mobile Floating Action Button and Dialog */}
+      <div className="fixed bottom-6 right-6 z-50 lg:hidden">
+        <Dialog open={isAddDialogOpen} onOpenChange={handleCloseDialog}>
+          <DialogTrigger>
+            <button className="flex items-center gap-2 bg-ink text-paper px-5 py-3 rounded-full shadow-xl hover:bg-ink-soft transition-all duration-200 active:scale-95 border border-paper/10">
+              <span className="text-[18px] font-light leading-none">+</span>
+              <span className="text-[10px] uppercase tracking-[0.16em] font-medium">Record</span>
+            </button>
+          </DialogTrigger>
+          <DialogContent className="bg-ink text-paper p-6 border border-paper/20 rounded-lg max-h-[90vh] overflow-y-auto w-[calc(100%-2rem)]">
+            <h3 className="font-serif text-[26px] mb-6 text-paper">
+              {editingTx ? "Edit Transaction" : "Record Transaction"}
+            </h3>
+
+            <form
+              onSubmit={txForm.handleSubmit(onTxSubmit)}
+              className="space-y-4">
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.14em] text-paper/55 mb-[5px]">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  {...txForm.register("date")}
+                  className="w-full bg-transparent border-b-[0.5px] border-paper/25 pb-[10px] text-[14px] text-paper focus:outline-none focus:border-paper transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.14em] text-paper/55 mb-[5px]">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Office Supplies"
+                  {...txForm.register("description")}
+                  className="w-full bg-transparent border-b-[0.5px] border-paper/25 pb-[10px] text-[14px] text-paper focus:outline-none focus:border-paper transition-colors placeholder:text-paper/30"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.14em] text-paper/55 mb-[5px]">
+                    Type
+                  </label>
+                  <select
+                    {...txForm.register("type")}
+                    className="w-full bg-transparent border-b-[0.5px] border-paper/25 pb-[10px] text-[14px] text-paper focus:outline-none focus:border-paper transition-colors appearance-none">
+                    <option value="expense" className="bg-ink text-paper">
+                      Expense
+                    </option>
+                    <option value="income" className="bg-ink text-paper">
+                      Income
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.14em] text-paper/55 mb-[5px]">
+                    Account
+                  </label>
+                  <select
+                    {...txForm.register("accountId")}
+                    className="w-full bg-transparent border-b-[0.5px] border-paper/25 pb-[10px] text-[14px] text-paper focus:outline-none focus:border-paper transition-colors appearance-none">
+                    <option value="" className="bg-ink text-paper/50">
+                      Select...
+                    </option>
+                    {accounts.map((acc) => (
+                      <option
+                        key={acc.id}
+                        value={acc.id!}
+                        className="bg-ink text-paper">
+                        {acc.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.14em] text-paper/55 mb-[5px]">
+                  Category
+                </label>
+                <select
+                  {...txForm.register("categoryId")}
+                  className="w-full bg-transparent border-b-[0.5px] border-paper/25 pb-[10px] text-[14px] text-paper focus:outline-none focus:border-paper transition-colors appearance-none">
+                  <option value="none" className="bg-ink text-paper/50">
+                    None
+                  </option>
+                  {categories.map((cat) => (
+                    <option
+                      key={cat.id}
+                      value={cat.id!}
+                      className="bg-ink text-paper">
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.14em] text-paper/55 mb-[5px]">
+                  Amount
+                </label>
+                <div className="relative">
+                  <span className="absolute left-0 top-0 text-paper/55 font-serif text-[22px]">
+                    {currencySymbol}
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    {...txForm.register("amount")}
+                    className="w-full bg-transparent border-b-[0.5px] border-paper/25 pb-[10px] pl-[18px] text-[22px] font-serif tabular-nums text-paper focus:outline-none focus:border-paper transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-paper text-ink border-[0.5px] border-ink py-[12px] text-[11px] uppercase tracking-[0.16em] hover:bg-paper-warm transition-colors">
+                  {editingTx ? "Update" : "Record"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCloseDialog(false)}
+                  className="flex-1 bg-transparent text-paper border-[0.5px] border-paper py-[12px] text-[11px] uppercase tracking-[0.16em] hover:bg-paper/10 transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
